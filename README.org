@@ -1,0 +1,13 @@
+* Sym-graphs
+
+Symbolic machine excecution visualisation
+
+** Dependencies
+- SDL2
+- SDL2_image
+- glew
+- glm
+- boost
+- freetype
+- libpcre2
+- libpng
