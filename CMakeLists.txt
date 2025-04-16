@@ -14,7 +14,8 @@ find_package(Boost 1.82 REQUIRED COMPONENTS filesystem system)
 find_package(PNG REQUIRED)
 
 file(GLOB SRC ${CMAKE_SOURCE_DIR}/src/*.cpp
-     ${CMAKE_SOURCE_DIR}/shared/Core/*.cpp)
+     ${CMAKE_SOURCE_DIR}/shared/Core/*.cpp
+     ${CMAKE_SOURCE_DIR}/shared/Core/ui/*.cpp)
 
 add_executable(sym-graphs ${SRC})
 
