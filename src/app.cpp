@@ -1,5 +1,4 @@
 #include "app.h"
-#include "Core/display.h"
 #include "graph.h"
 
 Graph g;
@@ -23,11 +22,10 @@ App::App() {
   g.init();
 }
 
-void App::update(float t, float dt) {
-  display.update();
-  draw(t, dt);
+void App::update() {
+  draw();
 }
 
-void App::draw(float t, float dt) {
-  g.draw(t, dt);
+void App::draw() {
+  g.draw();
 }

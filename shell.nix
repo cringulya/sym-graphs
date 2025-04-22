@@ -2,20 +2,18 @@ with import <nixpkgs> { };
 
 mkShell {
   nativeBuildInputs = with pkgs; [
-    SDL2
-    SDL2_image
-    pcre2
-    freetype
-    glew
-    glm
-    glfw
-    boost
     cmake
-    libpng
+    ninja
+    git
+
     libGL
-    libwebp
-    libtiff
+    # X11 dependencies
     xorg.libX11
+    xorg.libX11.dev
+    xorg.libXcursor
+    xorg.libXi
+    xorg.libXinerama
+    xorg.libXrandr
   ];
 
   shellHook = ''

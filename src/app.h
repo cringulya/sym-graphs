@@ -1,11 +1,9 @@
 #pragma once
 
-#include "Core/sdlapp.h"
-
-class App : public SDLApp {
+class App {
 public:
   App();
 
-  void update(float t, float dt);
-  void draw(float t, float dt);
+  void update();
+  void draw();
 };

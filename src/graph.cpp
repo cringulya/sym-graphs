@@ -1,41 +1,44 @@
 #include <cmath>
+#include <iostream>
+#include <ostream>
 
-#include "Core/gl.h"
 #include "graph.h"
+#include "raylib.h"
+#include "raymath.h"
 
 void Graph::init() {
   for (auto &v : vertecies) {
-    v.x = (rand() / (float)RAND_MAX - 0.5f) * 2.0f;
-    v.y = (rand() / (float)RAND_MAX - 0.5f) * 2.0f;
+    v.pos.x =
+        ((float)GetRandomValue(0, GetScreenWidth()) / (float)GetScreenWidth() -
+         0.5f) *
+        2.0f;
+    v.pos.y = ((float)GetRandomValue(0, GetScreenHeight()) /
+                   (float)GetScreenHeight() -
+               0.5f) *
+              2.0f;
   }
 
   apply_force_layout();
 }
 
-void Graph::Vertex::draw(float t, float dt) {
-  glPointSize(10.0f);
-  glColor3f(0.2f, 0.6f, 1.0f);
-  glBegin(GL_POINTS);
-  glVertex2f(x, y);
-  glEnd();
-}
-
-void Graph::draw(float t, float dt) {
-  for (auto &v : vertecies) {
-    v.draw(t, dt);
-  }
-
-  glColor3f(0.7f, 0.7f, 0.7f);
-  glBegin(GL_LINES);
+void Graph::draw() {
   for (auto &e : edges) {
-    glVertex2f(vertecies[e.from].x, vertecies[e.from].y);
-    glVertex2f(vertecies[e.to].x, vertecies[e.to].y);
+    DrawLineV(vertecies[e.from].pos, vertecies[e.to].pos, LIGHTGRAY);
   }
-  glEnd();
+
+  for (auto &v : vertecies) {
+    DrawCircleV(v.pos, 10.f, RED);
+  }
 }
 
 void Graph::apply_force_layout(int iterations, float width, float height) {
+  width = GetScreenWidth() / 2.f;
+  height = GetScreenHeight() / 2.f;
+
+  std::cout << width << ' ' << height << std::endl;
   const int n = vertecies.size();
+  if (n == 0) return;
+
   const float area = width * height;
   const float k = std::sqrt(area / n);
   float temperature = width / 10.0f;
@@ -43,59 +46,44 @@ void Graph::apply_force_layout(int iterations, float width, float height) {
 
   for (int it = 0; it < iterations; ++it) {
     for (auto &node : vertecies) {
-      node.dx = 0;
-      node.dy = 0;
+      node.disp = {0.0f, 0.0f};
     }
 
     for (int i = 0; i < n; ++i) {
       for (int j = i + 1; j < n; ++j) {
-        float dx = vertecies[i].x - vertecies[j].x;
-        float dy = vertecies[i].y - vertecies[j].y;
-        float dist = std::sqrt(dx * dx + dy * dy + 1e-4f);
-        float force = k * k / dist;
+        Vector2 delta = Vector2Subtract(vertecies[i].pos, vertecies[j].pos);
+        float dist = std::sqrt(delta.x * delta.x + delta.y * delta.y + 1e-4f);
+        float force = (k * k) / dist;
+        Vector2 repulse = Vector2Scale(Vector2Normalize(delta), force);
 
-        float fx = (dx / dist) * force;
-        float fy = (dy / dist) * force;
-
-        vertecies[i].dx += fx;
-        vertecies[i].dy += fy;
-        vertecies[j].dx -= fx;
-        vertecies[j].dy -= fy;
+        vertecies[i].disp = Vector2Add(vertecies[i].disp, repulse);
+        vertecies[j].disp = Vector2Subtract(vertecies[j].disp, repulse);
       }
     }
 
     for (const auto &e : edges) {
       auto &u = vertecies[e.from];
       auto &v = vertecies[e.to];
-      float dx = u.x - v.x;
-      float dy = u.y - v.y;
-      float dist = std::sqrt(dx * dx + dy * dy + 1e-4f);
-      float force = dist * dist / k;
+      Vector2 delta = Vector2Subtract(u.pos, v.pos);
+      float dist = std::sqrt(delta.x * delta.x + delta.y * delta.y + 1e-4f);
+      float force = (dist * dist) / k;
+      Vector2 attract = Vector2Scale(Vector2Normalize(delta), force);
 
-      float fx = (dx / dist) * force;
-      float fy = (dy / dist) * force;
-
-      u.dx -= fx;
-      u.dy -= fy;
-      v.dx += fx;
-      v.dy += fy;
+      u.disp = Vector2Subtract(u.disp, attract);
+      v.disp = Vector2Add(v.disp, attract);
     }
 
     for (auto &node : vertecies) {
-      float dx = node.dx;
-      float dy = node.dy;
-      float disp = std::sqrt(dx * dx + dy * dy);
-
-      if (disp > 0.0f) {
-        dx = dx / disp * std::min(disp, temperature);
-        dy = dy / disp * std::min(disp, temperature);
+      float disp_len =
+          std::sqrt(node.disp.x * node.disp.x + node.disp.y * node.disp.y);
+      if (disp_len > 0.0f) {
+        Vector2 move = Vector2Scale(Vector2Normalize(node.disp),
+                                    std::min(disp_len, temperature));
+        node.pos = Vector2Add(node.pos, move);
       }
 
-      node.x += dx;
-      node.y += dy;
-
-      node.x = std::max(-width / 2.0f, std::min(width / 2.0f, node.x));
-      node.y = std::max(-height / 2.0f, std::min(height / 2.0f, node.y));
+      node.pos.x = Clamp(node.pos.x, -width / 2.0f, width / 2.0f);
+      node.pos.y = Clamp(node.pos.y, -height / 2.0f, height / 2.0f);
     }
 
     temperature *= cooling;

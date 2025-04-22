@@ -1,5 +1,6 @@
 #pragma once
 
+#include "raylib.h"
 #include <vector>
 
 class Graph {
@@ -15,10 +16,8 @@ public:
     bool contains_throw;
     std::vector<int> states;
 
-    float x, y;
-    float dx, dy;
-
-    void draw(float t, float dt);
+    Vector2 pos;
+    Vector2 disp;
   };
 
   struct Edge {
@@ -29,7 +28,7 @@ public:
   std::vector<Edge> edges;
 
   void init();
-  void draw(float t, float dt);
-  void apply_force_layout(int iterations = 100, float width = 1.0f,
-                          float height = 1.0f);
+  void draw();
+  void apply_force_layout(int iterations = 100, float width = 500.0f,
+                          float height = 500.0f);
 };
