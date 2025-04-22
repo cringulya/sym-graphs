@@ -8,10 +8,14 @@ mkShell {
     freetype
     glew
     glm
+    glfw
     boost
+    cmake
     libpng
+    libGL
     libwebp
     libtiff
+    xorg.libX11
   ];
 
   shellHook = ''

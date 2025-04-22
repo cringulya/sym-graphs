@@ -14,12 +14,12 @@ int main(int argc, char *argv[]) {
   SDLAppInit("kek", "shmek");
   display.enableVsync(1);
   display.enableResize(1);
-  display.enableFrameless(1);
+  display.enableFrameless(0);
   display.enableAlpha(1);
   display.enableHighDPIAwareness(1);
   display.setClearColour({0.1f, 0.2f, 0.3f});
 
-  display.init("kek", 1000, 1000, -1);
+  display.init("kek", 1000, 1000, 0);
 
   App app;
   app.run();
