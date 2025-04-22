@@ -29,6 +29,5 @@ public:
 
   void init();
   void draw();
-  void apply_force_layout(int iterations = 100, float width = 500.0f,
-                          float height = 500.0f);
+  void apply_force_layout(int iterations = 100);
 };

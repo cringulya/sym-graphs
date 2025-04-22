@@ -7,15 +7,12 @@
 #include "raymath.h"
 
 void Graph::init() {
+  const float scale = 10000.f;
   for (auto &v : vertecies) {
-    v.pos.x =
-        ((float)GetRandomValue(0, GetScreenWidth()) / (float)GetScreenWidth() -
-         0.5f) *
-        2.0f;
-    v.pos.y = ((float)GetRandomValue(0, GetScreenHeight()) /
-                   (float)GetScreenHeight() -
-               0.5f) *
-              2.0f;
+    v.pos.x = ((float)GetRandomValue(0, scale) / scale - 0.5f) * 2.f *
+              GetScreenWidth();
+    v.pos.y = ((float)GetRandomValue(0, scale) / scale - 0.5f) * 2.f *
+              GetScreenHeight();
   }
 
   apply_force_layout();
@@ -31,9 +28,9 @@ void Graph::draw() {
   }
 }
 
-void Graph::apply_force_layout(int iterations, float width, float height) {
-  width = GetScreenWidth() / 2.f;
-  height = GetScreenHeight() / 2.f;
+void Graph::apply_force_layout(int iterations) {
+  float width = GetScreenWidth() / 2.f;
+  float height = GetScreenHeight() / 2.f;
 
   std::cout << width << ' ' << height << std::endl;
   const int n = vertecies.size();
