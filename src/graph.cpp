@@ -7,18 +7,18 @@
 #include "raymath.h"
 
 void Graph::init() {
+  temperature_ = GetScreenWidth() / 10.0f;
   const float scale = 10000.f;
   for (auto &v : vertecies) {
-    v.pos.x = ((float)GetRandomValue(0, scale) / scale - 0.5f) * 2.f *
-              GetScreenWidth();
-    v.pos.y = ((float)GetRandomValue(0, scale) / scale - 0.5f) * 2.f *
-              GetScreenHeight();
+    v.pos.x =
+        ((float)GetRandomValue(0, scale) / scale - 0.5f) * GetScreenWidth();
+    v.pos.y =
+        ((float)GetRandomValue(0, scale) / scale - 0.5f) * GetScreenHeight();
   }
-
-  apply_force_layout();
 }
 
 void Graph::draw() {
+  apply_force_layout(1);
   for (auto &e : edges) {
     DrawLineV(vertecies[e.from].pos, vertecies[e.to].pos, LIGHTGRAY);
   }
@@ -32,15 +32,14 @@ void Graph::apply_force_layout(int iterations) {
   float width = GetScreenWidth() / 2.f;
   float height = GetScreenHeight() / 2.f;
 
-  std::cout << width << ' ' << height << std::endl;
   const int n = vertecies.size();
   if (n == 0) return;
 
   const float area = width * height;
   const float k = std::sqrt(area / n);
-  float temperature = width / 10.0f;
   const float cooling = 0.95f;
 
+  const float lambda = 100.0f;
   for (int it = 0; it < iterations; ++it) {
     for (auto &node : vertecies) {
       node.disp = {0.0f, 0.0f};
@@ -75,7 +74,7 @@ void Graph::apply_force_layout(int iterations) {
           std::sqrt(node.disp.x * node.disp.x + node.disp.y * node.disp.y);
       if (disp_len > 0.0f) {
         Vector2 move = Vector2Scale(Vector2Normalize(node.disp),
-                                    std::min(disp_len, temperature));
+                                    std::min(disp_len, temperature_));
         node.pos = Vector2Add(node.pos, move);
       }
 
@@ -83,6 +82,9 @@ void Graph::apply_force_layout(int iterations) {
       node.pos.y = Clamp(node.pos.y, -height / 2.0f, height / 2.0f);
     }
 
-    temperature *= cooling;
+    float delta_time = GetFrameTime();
+    temperature_ *= std::pow(cooling, delta_time);
+
+    if (temperature_ < 0.1f) temperature_ = 0.1f;
   }
 }

@@ -30,4 +30,8 @@ public:
   void init();
   void draw();
   void apply_force_layout(int iterations = 100);
+
+private:
+  size_t frame = 0;
+  float temperature_ = 0.f;
 };

@@ -4,7 +4,8 @@
 
 int main(int argc, char *argv[]) {
 
-  InitWindow(1000, 1000, "raylib [core] example - basic window");
+  InitWindow(1000, 1000, "sym-graphs");
+  SetWindowPosition(1000, 100);
   App app;
   Camera2D camera{};
   camera.target = {0.0f, 0.0f};
