@@ -2,7 +2,7 @@
 #include <iostream>
 #include <ostream>
 
-#include "graph.h"
+#include "graph.hpp"
 #include "raylib.h"
 #include "raymath.h"
 
@@ -15,10 +15,10 @@ void Graph::init() {
     v.pos.y =
         ((float)GetRandomValue(0, scale) / scale - 0.5f) * GetScreenHeight();
   }
+  apply_force_layout(10);
 }
 
 void Graph::draw() {
-  apply_force_layout(1);
   for (auto &e : edges) {
     DrawLineV(vertecies[e.from].pos, vertecies[e.to].pos, LIGHTGRAY);
   }

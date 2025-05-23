@@ -1,25 +1,16 @@
-#include "app.h"
-#include "graph.h"
-
-Graph g;
+#include "app.hpp"
+#include "graph.hpp"
+#include "parser/parser.hpp"
+#include "raylib.h"
+#include "raymath.h"
+#include <iostream>
 
 App::App() {
-  g.vertecies.resize(8);
-  g.edges.push_back({0, 1});
-  g.edges.push_back({1, 2});
-  g.edges.push_back({2, 3});
-  g.edges.push_back({3, 0});
-
-  g.edges.push_back({4, 0});
-  g.edges.push_back({4, 1});
-  g.edges.push_back({4, 2});
-  g.edges.push_back({4, 3});
-
-  g.edges.push_back({4, 5});
-  g.edges.push_back({5, 6});
-  g.edges.push_back({6, 7});
-
-  g.init();
+  Parser parser;
+  history_ = parser.parse("../../SerializedEpisodes/adjoint_0");
+  for (auto &g : history_) {
+    g.init();
+  }
 }
 
 void App::update() {
@@ -27,5 +18,13 @@ void App::update() {
 }
 
 void App::draw() {
-  g.draw();
+  float time = GetTime();
+  float max_time = 20;
+  float time_per_graph = max_time / history_.size();
+
+  int id = fmin(history_.size() - 1, time / time_per_graph);
+  std::cout << time << std::endl;
+  std::cout << id << std::endl;
+
+  history_[id].draw();
 }

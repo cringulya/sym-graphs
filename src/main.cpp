@@ -1,4 +1,5 @@
-#include "app.h"
+#include "app.hpp"
+#include "parser/parser.hpp"
 #include "raylib.h"
 #include <iostream>
 
@@ -26,6 +27,5 @@ int main(int argc, char *argv[]) {
 
   CloseWindow();
 
-  return 0;
   return 0;
 }
