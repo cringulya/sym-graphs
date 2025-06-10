@@ -49,17 +49,20 @@ std::vector<Graph> Parser::parse(fs::path dir) {
 
       for (auto &v : j_vertices) {
         Graph::Vertex vertex;
+        int id;
         try {
-          vertex.id = v.at("Id");
+          id = v.at("Id");
           vertex.contains_call = v.at("ContainsCall");
           vertex.contains_throw = v.at("ContainsThrow");
           vertex.covered_by_test = v.at("CoveredByTest");
           vertex.in_coverage_zone = v.at("InCoverageZone");
+          vertex.visited_by_state = v.at("VisitedByState");
+          vertex.touched_by_state = v.at("TouchedByState");
           vertex.states = v.at("States").get<std::vector<int>>();
         } catch (...) {
           throw;
         }
-        g.vertecies.push_back(vertex);
+        g.vertecies[id] = vertex;
       }
 
       for (auto &e : j_edges) {

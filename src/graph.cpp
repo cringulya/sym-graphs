@@ -1,19 +1,22 @@
 #include <cmath>
 #include <iostream>
 #include <ostream>
+#include <string>
 
 #include "graph.hpp"
 #include "raylib.h"
 #include "raymath.h"
 
-void Graph::init() {
+void Graph::update() {
   temperature_ = GetScreenWidth() / 10.0f;
   const float scale = 10000.f;
-  for (auto &v : vertecies) {
-    v.pos.x =
-        ((float)GetRandomValue(0, scale) / scale - 0.5f) * GetScreenWidth();
-    v.pos.y =
-        ((float)GetRandomValue(0, scale) / scale - 0.5f) * GetScreenHeight();
+  for (auto &[id, v] : vertecies) {
+    if (v.pos == Vector2Zero()) {
+      v.pos.x =
+          ((float)GetRandomValue(0, scale) / scale - 0.5f) * GetScreenWidth();
+      v.pos.y =
+          ((float)GetRandomValue(0, scale) / scale - 0.5f) * GetScreenHeight();
+    }
   }
   apply_force_layout(10);
 }
@@ -23,8 +26,15 @@ void Graph::draw() {
     DrawLineV(vertecies[e.from].pos, vertecies[e.to].pos, LIGHTGRAY);
   }
 
-  for (auto &v : vertecies) {
-    DrawCircleV(v.pos, 10.f, RED);
+  for (auto &[id, v] : vertecies) {
+    Color color = RED;
+    if (v.covered_by_test) {
+      color = GREEN;
+    } else if (v.touched_by_state) {
+      color = YELLOW;
+    }
+    DrawCircleV(v.pos, 20.f, color);
+    DrawText(std::to_string(id).c_str(), v.pos.x, v.pos.y, 10, WHITE);
   }
 }
 
@@ -41,7 +51,7 @@ void Graph::apply_force_layout(int iterations) {
 
   const float lambda = 100.0f;
   for (int it = 0; it < iterations; ++it) {
-    for (auto &node : vertecies) {
+    for (auto &[id, node] : vertecies) {
       node.disp = {0.0f, 0.0f};
     }
 
@@ -62,14 +72,14 @@ void Graph::apply_force_layout(int iterations) {
       auto &v = vertecies[e.to];
       Vector2 delta = Vector2Subtract(u.pos, v.pos);
       float dist = std::sqrt(delta.x * delta.x + delta.y * delta.y + 1e-4f);
-      float force = (dist * dist) / k;
+      float force = (dist * dist) / k * 2.f;
       Vector2 attract = Vector2Scale(Vector2Normalize(delta), force);
 
       u.disp = Vector2Subtract(u.disp, attract);
       v.disp = Vector2Add(v.disp, attract);
     }
 
-    for (auto &node : vertecies) {
+    for (auto &[id, node] : vertecies) {
       float disp_len =
           std::sqrt(node.disp.x * node.disp.x + node.disp.y * node.disp.y);
       if (disp_len > 0.0f) {

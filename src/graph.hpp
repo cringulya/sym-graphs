@@ -1,12 +1,15 @@
 #pragma once
 
 #include "raylib.h"
+#include <unordered_map>
 #include <vector>
+
+#include "ogdf/basic/Graph.h"
+#include "ogdf/energybased/SpringForceModel.h"
 
 class Graph {
 public:
   struct Vertex {
-    int id;
     bool in_coverage_zone;
     int basic_block_size;
     bool covered_by_test;
@@ -24,10 +27,10 @@ public:
     int from, to;
   };
 
-  std::vector<Vertex> vertecies;
+  std::unordered_map<size_t, Vertex> vertecies;
   std::vector<Edge> edges;
 
-  void init();
+  void update();
   void draw();
   void apply_force_layout(int iterations = 100);
 

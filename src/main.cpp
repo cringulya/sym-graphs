@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
     app.update();
     BeginDrawing();
     BeginMode2D(camera);
-    ClearBackground(RAYWHITE);
+    ClearBackground(BLACK);
     app.draw();
 
     EndMode2D();
