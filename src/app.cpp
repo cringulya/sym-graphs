@@ -2,9 +2,7 @@
 #include "graph.hpp"
 #include "parser/parser.hpp"
 #include "raylib.h"
-#include "raymath.h"
 #include <cassert>
-#include <format>
 #include <iostream>
 
 App::App() {

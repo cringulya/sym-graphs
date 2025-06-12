@@ -2,7 +2,7 @@
 
 Symbolic machine excecution visualisation inspired by Gource
 
-[[file:images/screenshot.pngss][screenshot]]
+[[file:images/screenshot.png][screenshot]]
 
 ** Dependencies
 raylib
