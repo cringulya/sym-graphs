@@ -49,6 +49,7 @@ public:
   std::unordered_map<size_t, State> states;
   std::vector<Edge> edges;
 
+  void init();
   void update();
   void draw();
   void apply_force_layout();
@@ -56,7 +57,7 @@ public:
 private:
   size_t frame = 0;
   float temperature_ = 0.f;
-  const float radius_ = 6.f;
-  const float textwidth_ = 10.f;
+  const float radius_ = 10.f;
+  const int fontsize_ = 50;
   double time_;
 };

@@ -84,18 +84,18 @@ std::vector<Graph> Parser::parse(fs::path dir) {
         g.states[id] = state;
       }
 
-      for (auto &v : j_vertices) {
+      for (auto &j_v : j_vertices) {
         Graph::Vertex vertex;
         int id;
         try {
-          id = v.at("Id");
-          vertex.contains_call = v.at("ContainsCall");
-          vertex.contains_throw = v.at("ContainsThrow");
-          vertex.covered_by_test = v.at("CoveredByTest");
-          vertex.in_coverage_zone = v.at("InCoverageZone");
-          vertex.visited_by_state = v.at("VisitedByState");
-          vertex.touched_by_state = v.at("TouchedByState");
-          vertex.states = v.at("States").get<std::vector<int>>();
+          id = j_v.at("Id");
+          vertex.contains_call = j_v.at("ContainsCall");
+          vertex.contains_throw = j_v.at("ContainsThrow");
+          vertex.covered_by_test = j_v.at("CoveredByTest");
+          vertex.in_coverage_zone = j_v.at("InCoverageZone");
+          vertex.visited_by_state = j_v.at("VisitedByState");
+          vertex.touched_by_state = j_v.at("TouchedByState");
+          vertex.states = j_v.at("States").get<std::vector<int>>();
         } catch (...) {
           throw;
         }

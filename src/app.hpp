@@ -11,4 +11,5 @@ public:
 private:
   std::vector<Graph> frames_;
   float time_per_graph = 10;
+  int prev_frame_ = -1;
 };
