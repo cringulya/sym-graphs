@@ -1,14 +1,9 @@
 #include <cassert>
 #include <cmath>
 #include <ctime>
-#include <filesystem>
-#include <format>
-#include <iostream>
-#include <ostream>
 #include <string>
 
 #include "graph.hpp"
-#include "parser/parser.hpp"
 #include "raylib.h"
 #include "raymath.h"
 

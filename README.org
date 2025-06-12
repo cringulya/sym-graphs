@@ -1,13 +1,14 @@
 * Sym-graphs
 
-Symbolic machine excecution visualisation
+Symbolic machine excecution visualisation inspired by Gource
+
+[[file:images/screenshot.pngss][screenshot]]
 
 ** Dependencies
-- SDL2
-- SDL2_image
-- glew
-- glm
-- boost
-- freetype
-- libpcre2
-- libpng
+raylib
+
+** Building
+#+begin_src sh
+git submodule init --recursive # for raylib
+cmake -Bbuild && cmake --build ./build
+#+end_src
