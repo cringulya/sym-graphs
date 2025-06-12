@@ -5,22 +5,12 @@
 #include <cassert>
 #include <iostream>
 
-App::App() {
-  Parser parser;
-  frames_ = parser.parse("../../SerializedEpisodes/adjoint_0");
+void App::init(std::filesystem::path const &path) {
+  static Parser parser;
+  frames_ = parser.parse(path);
 
-  for (auto &f : frames_) {
-    for (auto &[id, v] : f.vertices) {
-      assert(id != 877);
-    }
-  }
   if (!frames_.empty()) {
     frames_.front().init();
-  }
-  for (auto &f : frames_) {
-    for (auto &[id, v] : f.vertices) {
-      assert(id != 877);
-    }
   }
 }
 
@@ -30,8 +20,7 @@ void App::update() {
 
 void App::draw() {
   float time = GetTime();
-  float max_time = 100;
-  float time_per_graph = max_time / frames_.size();
+  float time_per_graph = max_time_ / frames_.size();
 
   int id = fmin(frames_.size() - 1, time / time_per_graph);
 

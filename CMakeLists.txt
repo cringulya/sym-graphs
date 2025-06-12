@@ -12,7 +12,3 @@ add_executable(sym-graphs ${SRC})
 
 target_link_libraries(sym-graphs PRIVATE raylib)
 target_include_directories(sym-graphs PRIVATE src external)
-
-if(UNIX AND NOT APPLE)
-  target_link_libraries(sym-graphs PRIVATE pthread m dl X11)
-endif()

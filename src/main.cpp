@@ -4,6 +4,12 @@
 #include <exception>
 #include <iostream>
 
+// TODO:
+// - map specificly in edges, make attraction greater for those
+// - console args path
+// - settings
+// - save
+
 int main(int argc, char *argv[]) {
   try {
     InitWindow(1000, 1000, "sym-graphs");
@@ -15,6 +21,7 @@ int main(int argc, char *argv[]) {
     camera.zoom = 1.0f;
 
     App app;
+    app.init("../../SerializedEpisodes/adjoint_0");
     while (!WindowShouldClose()) {
       if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON)) {
         Vector2 delta = GetMouseDelta();
@@ -55,7 +62,7 @@ int main(int argc, char *argv[]) {
 
     CloseWindow();
   } catch (std::exception const &e) {
-    std::cerr << e.what();
+    std::cerr << e.what() << std::endl;
   }
 
   return 0;

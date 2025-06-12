@@ -6,11 +6,16 @@
 #include <filesystem>
 #include <fstream>
 #include <iostream>
+#include <stdexcept>
 #include <vector>
 
 namespace fs = std::filesystem;
 
 std::vector<Graph> Parser::parse(fs::path dir) {
+
+  if (!std::filesystem::exists(dir)) {
+    throw std::runtime_error("[Error]: path does not exist " + dir.string());
+  }
 
   std::vector<fs::directory_entry> files;
 
