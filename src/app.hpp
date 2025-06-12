@@ -9,6 +9,6 @@ public:
   void draw();
 
 private:
-  std::vector<Graph> history_;
+  std::vector<Graph> frames_;
   float time_per_graph = 10;
 };

@@ -1,100 +1,132 @@
 #include <cmath>
+#include <ctime>
+#include <filesystem>
 #include <iostream>
 #include <ostream>
 #include <string>
 
 #include "graph.hpp"
+#include "parser/parser.hpp"
 #include "raylib.h"
 #include "raymath.h"
 
 void Graph::update() {
   temperature_ = GetScreenWidth() / 10.0f;
   const float scale = 10000.f;
-  for (auto &[id, v] : vertecies) {
+  for (auto &[id, v] : vertices) {
     if (v.pos == Vector2Zero()) {
       v.pos.x =
           ((float)GetRandomValue(0, scale) / scale - 0.5f) * GetScreenWidth();
       v.pos.y =
           ((float)GetRandomValue(0, scale) / scale - 0.5f) * GetScreenHeight();
+
+      v.vel = Vector2Zero();
     }
   }
-  apply_force_layout(10);
+  for (auto &[id, s] : states) {
+    if (s.pos == Vector2Zero()) {
+      s.pos.x =
+          ((float)GetRandomValue(0, scale) / scale - 0.5f) * GetScreenWidth();
+      s.pos.y =
+          ((float)GetRandomValue(0, scale) / scale - 0.5f) * GetScreenHeight();
+    }
+  }
+  apply_force_layout();
 }
 
 void Graph::draw() {
   for (auto &e : edges) {
-    DrawLineV(vertecies[e.from].pos, vertecies[e.to].pos, LIGHTGRAY);
+    DrawLineV(vertices[e.from].pos, vertices[e.to].pos, LIGHTGRAY);
   }
 
-  for (auto &[id, v] : vertecies) {
+  for (auto &[id, v] : vertices) {
     Color color = RED;
     if (v.covered_by_test) {
       color = GREEN;
     } else if (v.touched_by_state) {
-      color = YELLOW;
+      color = ORANGE;
     }
-    DrawCircleV(v.pos, 20.f, color);
+    DrawCircleV(v.pos, radius_, color);
     DrawText(std::to_string(id).c_str(), v.pos.x, v.pos.y, 10, WHITE);
+  }
+
+  for (auto &[id, s] : states) {
+    for (auto &hv : s.history) {
+      DrawLineV(s.pos, vertices[hv.id].pos, PINK);
+    }
+    Color color = BLUE;
+    DrawCircleV(s.pos, radius_, color);
+    DrawText(std::to_string(id).c_str(), s.pos.x, s.pos.y, textwidth_, WHITE);
   }
 }
 
-void Graph::apply_force_layout(int iterations) {
-  float width = GetScreenWidth() / 2.f;
-  float height = GetScreenHeight() / 2.f;
+void Graph::apply_force_layout() {
+  float dt = GetFrameTime();
 
-  const int n = vertecies.size();
+  const float kAttract = 0.01f;
+  const float kRepulse = 1000.0f;
+  const float damping = 0.85f;
+  const int n = vertices.size();
   if (n == 0) return;
 
-  const float area = width * height;
-  const float k = std::sqrt(area / n);
-  const float cooling = 0.95f;
+  for (auto &e : edges) {
+    Vector2 force = Vector2Zero();
+    Vector2 delta = vertices[e.from].pos - vertices[e.to].pos;
+    force += delta * kAttract;
+    vertices[e.to].vel += force * dt;
+  }
 
-  const float lambda = 100.0f;
-  for (int it = 0; it < iterations; ++it) {
-    for (auto &[id, node] : vertecies) {
-      node.disp = {0.0f, 0.0f};
+  for (auto &[id, s] : states) {
+    for (auto &v : s.history) {
+      Vector2 force = Vector2Zero();
+      Vector2 delta = s.pos - vertices[id].pos;
+      force += delta * kAttract;
+      vertices[id].vel += force * dt;
+    }
+  }
+
+  for (auto &[id_a, a] : vertices) {
+    Vector2 force = Vector2Zero();
+    for (auto &[id_b, b] : vertices) {
+      if (id_a == id_b) break;
+      Vector2 delta = a.pos - b.pos;
+      float dist2 = Vector2DistanceSqr(a.pos, b.pos);
+      force += delta * (kRepulse / dist2);
     }
 
-    for (int i = 0; i < n; ++i) {
-      for (int j = i + 1; j < n; ++j) {
-        Vector2 delta = Vector2Subtract(vertecies[i].pos, vertecies[j].pos);
-        float dist = std::sqrt(delta.x * delta.x + delta.y * delta.y + 1e-4f);
-        float force = (k * k) / dist;
-        Vector2 repulse = Vector2Scale(Vector2Normalize(delta), force);
-
-        vertecies[i].disp = Vector2Add(vertecies[i].disp, repulse);
-        vertecies[j].disp = Vector2Subtract(vertecies[j].disp, repulse);
-      }
+    for (auto &[id_s, s] : states) {
+      if (id_a == id_s) break;
+      Vector2 delta = a.pos - s.pos;
+      float dist2 = Vector2DistanceSqr(a.pos, s.pos);
+      force += delta * (kRepulse / dist2);
     }
+    a.vel += force * dt;
+    a.vel *= damping;
+  }
 
-    for (const auto &e : edges) {
-      auto &u = vertecies[e.from];
-      auto &v = vertecies[e.to];
-      Vector2 delta = Vector2Subtract(u.pos, v.pos);
-      float dist = std::sqrt(delta.x * delta.x + delta.y * delta.y + 1e-4f);
-      float force = (dist * dist) / k * 2.f;
-      Vector2 attract = Vector2Scale(Vector2Normalize(delta), force);
-
-      u.disp = Vector2Subtract(u.disp, attract);
-      v.disp = Vector2Add(v.disp, attract);
+  for (auto &[id_a, a] : states) {
+    Vector2 force = Vector2Zero();
+    for (auto &[id_b, b] : vertices) {
+      if (id_a == id_b) break;
+      Vector2 delta = a.pos - b.pos;
+      float dist2 = Vector2DistanceSqr(a.pos, b.pos);
+      force += delta * (kRepulse / dist2);
     }
-
-    for (auto &[id, node] : vertecies) {
-      float disp_len =
-          std::sqrt(node.disp.x * node.disp.x + node.disp.y * node.disp.y);
-      if (disp_len > 0.0f) {
-        Vector2 move = Vector2Scale(Vector2Normalize(node.disp),
-                                    std::min(disp_len, temperature_));
-        node.pos = Vector2Add(node.pos, move);
-      }
-
-      node.pos.x = Clamp(node.pos.x, -width / 2.0f, width / 2.0f);
-      node.pos.y = Clamp(node.pos.y, -height / 2.0f, height / 2.0f);
+    for (auto &[id_s, s] : states) {
+      if (id_a == id_s) break;
+      Vector2 delta = a.pos - s.pos;
+      float dist2 = Vector2DistanceSqr(a.pos, s.pos);
+      force += delta * (kRepulse / dist2);
     }
+    a.vel += force * dt;
+    a.vel *= damping;
+  }
 
-    float delta_time = GetFrameTime();
-    temperature_ *= std::pow(cooling, delta_time);
+  for (auto &[_, s] : states) {
+    s.pos += s.vel;
+  }
 
-    if (temperature_ < 0.1f) temperature_ = 0.1f;
+  for (auto &[_, v] : vertices) {
+    v.pos += v.vel;
   }
 }

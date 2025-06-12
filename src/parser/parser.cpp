@@ -40,11 +40,48 @@ std::vector<Graph> Parser::parse(fs::path dir) {
     if (filename.contains(gameStateSuffix)) {
       nlohmann::json j_vertices;
       nlohmann::json j_edges;
+      nlohmann::json j_states;
+
       try {
         j_vertices = j.at("GraphVertices");
         j_edges = j.at("Map");
+        j_states = j.at("States");
       } catch (...) {
         throw;
+      }
+
+      for (auto &s : j_states) {
+        Graph::State state;
+        int id;
+        try {
+          id = s.at("Id");
+          state.position = s.at("Position");
+          state.visited_again_vertices = s.at("VisitedAgainVertices");
+          state.visited_not_covered_vertices_in_zone =
+              s.at("VisitedNotCoveredVerticesInZone");
+          state.visited_not_covered_vertices_out_of_zone =
+              s.at("VisitedNotCoveredVerticesOutOfZone");
+          state.step_when_moved_last_time = s.at("StepWhenMovedLastTime");
+          state.instructions_visited_in_current_block =
+              s.at("InstructionsVisitedInCurrentBlock");
+          Graph::State::HistoryVertex hv;
+          nlohmann::json j_history = s.at("History");
+          for (auto &j_hv : j_history) {
+            try {
+              hv.id = j_hv.at("GraphVertexId");
+              hv.num_of_visits = j_hv.at("NumOfVisits");
+              hv.step_when_visited_last_time =
+                  j_hv.at("StepWhenVisitedLastTime");
+            } catch (...) {
+              throw;
+            }
+            state.history.emplace_back(hv);
+          }
+        } catch (...) {
+          throw;
+        }
+
+        g.states[id] = state;
       }
 
       for (auto &v : j_vertices) {
@@ -62,7 +99,7 @@ std::vector<Graph> Parser::parse(fs::path dir) {
         } catch (...) {
           throw;
         }
-        g.vertecies[id] = vertex;
+        g.vertices[id] = vertex;
       }
 
       for (auto &e : j_edges) {
