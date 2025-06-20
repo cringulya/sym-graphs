@@ -21,7 +21,15 @@ int main(int argc, char *argv[]) {
     camera.zoom = 1.0f;
 
     App app;
-    app.init("../../SerializedEpisodes/adjoint_0");
+
+    if (argc == 2) {
+      app.init(argv[1]);
+    } else {
+      std::cerr
+          << "[Error]: Invalid args\nPut path to serialization as argument"
+          << std::endl;
+      exit(1);
+    }
     while (!WindowShouldClose()) {
       if (IsMouseButtonDown(MOUSE_RIGHT_BUTTON)) {
         Vector2 delta = GetMouseDelta();

@@ -12,3 +12,8 @@ raylib
 git submodule init --recursive # for raylib
 cmake -Bbuild && cmake --build ./build
 #+end_src
+
+** Usage
+#+begin_src sh
+sym-graphs ./path/to/serialization/dir
+#+end_src
