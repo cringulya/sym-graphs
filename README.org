@@ -9,7 +9,7 @@ raylib
 
 ** Building
 #+begin_src sh
-git submodule init --recursive # for raylib
+git submodule update --init --recursive --depth=1 # for raylib
 cmake -Bbuild && cmake --build ./build
 #+end_src
 
