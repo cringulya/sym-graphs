@@ -2,6 +2,7 @@
 
 #include "graph.hpp"
 #include <filesystem>
+
 class App {
 public:
   void init(std::filesystem::path const &);
